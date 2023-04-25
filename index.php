@@ -5,6 +5,12 @@
 // 2 - 22 - 23
 ?>
 
+<?php 
+    require_once "database.php";
+    $stmt = $pdo->prepare("SELECT * FROM todoitems");
+    $stmt->execute();
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,77 +19,34 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToDo List Application</title>
+    <link rel="stylesheet" href="style.css">
+    <title>ToDo List</title>
 </head>
 
 <body>
-    <h1>ToDo List Application</h1>
-    <?php
-    require_once ('database.php');
-
-    /*
-    $db = mysql_connect('localhost', 'root', '', 'todolist');
-
-    if (mysql_connect_error()) {
-        echo "Failed to connect to MySQL: " . mysql_connect_error();
-    }
-    */
-
-    $sql = "SELECT * FROM todoitems";
-    $statement = $conn->prepare($sql);
-    $statement->execute();
-    //$result = mysql_query($db, $sql);
-    if ($statement->rowCount() == 0) {
-        echo "No todo list items exist yet.";
-    } else {
-        echo "<table border='1'>
-                <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Remove</th>
-            </tr>";
-        while ($row = $statement->fetch()) {
-            echo "<tr>
-                    <td>".$row['Title']."</td>
-                    <td>".$row['Description']."</td>
-                    <td><a href='remove.php?id=".$row['ItemNum']."'>X</a></td>
-                </tr>";
-        }
-        echo "</table>";
-    }
-    ?>
-    <br>
-    <a href="add.php">Add Item</a>
-
-    <?php
-    /*
-    if (mysql_num_rows($result) > 0) {
-        echo "No to do list items exist yet.";
-    } else {
-        echo "<table border='1'> 
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Remove</th>
-            </tr>";
-        while ($row = mysql_fetch_assoc($result)) {
-            echo "<tr>
-                    <td>".$row['title']."</td>
-                    <td>".$row['description']."</td>
-                    <td><a href='remove.php?id=".$row['ItemNum']."'>X</a></td>
-                </tr>";
-        }
-        echo "</table>";
-    }
-
-    mysql_close($db);
-    ?>
-    <br>
-    <a href="add.php">Add Item</a>
-
-    */
-    ?>
-
+    <div class="container">
+        <h1>ToDo List</h1>
+        <div class="task-list">
+        <?php if (count($items) > 0): ?>
+            <?php foreach ($items as $item): ?>
+                <div class="task-list-item">
+                    <div class="task-list-item-title">
+                        <?php echo htmlspecialchars($item["item"]); ?>
+                    </div>
+                    <div class="task-list-item-description">
+                        <?php echo htmlspecialchars($item["description"]); ?>
+                    </div>
+                        <form method="post" action="delete.php" style="display: inline;">
+                            <input type="hidden" name="id" value="<?php echo $item["ItemNum"]; ?>">
+                            <button type="submit">Remove</button>
+                        </form>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>Nothing exists yet.</p>
+        <?php endif; ?>
+        </div>
+        <a href="add.php" class="add-item-button">Add item</a>
+    </div>
 </body>
-
 </html>
